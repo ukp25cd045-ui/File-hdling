@@ -1,0 +1,104 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+
+struct Student {
+    int roll;
+    char name[50];
+    float m1, m2, m3;
+    float total;
+};
+
+// Add student
+void addStudent() {
+    FILE *fp = fopen("students.txt", "a");
+    struct Student s;
+
+    printf("Enter Roll Number: ");
+    scanf("%d", &s.roll);
+    printf("Enter Name: ");
+    scanf("%s", s.name);
+    printf("Enter 3 subject marks: ");
+    scanf("%f %f %f", &s.m1, &s.m2, &s.m3);
+
+    s.total = s.m1 + s.m2 + s.m3;
+
+    fprintf(fp, "%d %s %.2f %.2f %.2f %.2f\n",
+            s.roll, s.name, s.m1, s.m2, s.m3, s.total);
+
+    fclose(fp);
+    printf("Record added successfully!\n");
+}
+
+// Display students
+void displayStudents() {
+    FILE *fp = fopen("students.txt", "r");
+    struct Student s;
+
+    printf("\n--- Student Records ---\n");
+
+    while (fscanf(fp, "%d %s %f %f %f %f",
+                  &s.roll, s.name, &s.m1, &s.m2, &s.m3, &s.total) != EOF) {
+        printf("Roll: %d | Name: %s | Total: %.2f\n",
+               s.roll, s.name, s.total);
+    }
+
+    fclose(fp);
+}
+
+// Rank list
+void rankList() {
+    FILE *fp = fopen("students.txt", "r");
+    struct Student s[100];
+    int i = 0, j;
+
+    // Read file into array
+    while (fscanf(fp, "%d %s %f %f %f %f",
+                  &s[i].roll, s[i].name,
+                  &s[i].m1, &s[i].m2, &s[i].m3, &s[i].total) != EOF) {
+        i++;
+    }
+    fclose(fp);
+
+    // Sort (descending by total)
+    for (int x = 0; x < i - 1; x++) {
+        for (int y = x + 1; y < i; y++) {
+            if (s[x].total < s[y].total) {
+                struct Student temp = s[x];
+                s[x] = s[y];
+                s[y] = temp;
+            }
+        }
+    }
+
+    printf("\n--- Rank List ---\n");
+    for (j = 0; j < i; j++) {
+        printf("Rank %d: %s (Total: %.2f)\n",
+               j + 1, s[j].name, s[j].total);
+    }
+}
+
+// Main menu
+int main() {
+    int choice;
+
+    while (1) {
+        printf("\n--- Student Management System ---\n");
+        printf("1. Add Student\n");
+        printf("2. Display Students\n");
+        printf("3. Rank List\n");
+        printf("4. Exit\n");
+        printf("Enter choice: ");
+        scanf("%d", &choice);
+
+        switch (choice) {
+            case 1: addStudent(); break;
+            case 2: displayStudents(); break;
+            case 3: rankList(); break;
+            case 4: exit(0);
+            default: printf("Invalid choice\n");
+        }
+    }
+
+    return 0;
+}
